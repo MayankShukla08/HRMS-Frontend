@@ -109,3 +109,241 @@ const CATEGORIES_GRID: { label: DocCategory; lastUpdated: string }[] = [
   { label: "Legal",        lastUpdated: "16 Mar 2022" },
   { label: "Certificates", lastUpdated: "20 Apr 2022" },
 ];
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
+export default function DocumentsPage() {
+  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState<DocCategory | "All">("All");
+
+  const filtered = DOCUMENTS.filter((d) => {
+    const matchCat = activeCategory === "All" || d.category === activeCategory;
+    const matchSearch = d.name.toLowerCase().includes(search.toLowerCase());
+    return matchCat && matchSearch;
+  });
+
+  const verifiedCount = DOCUMENTS.filter((d) => d.status === "Verified").length;
+  const pendingCount  = DOCUMENTS.filter((d) => d.status === "Pending").length;
+  const rejectedCount = DOCUMENTS.filter((d) => d.status === "Rejected").length;
+
+  return (
+    <div className="space-y-6 max-w-[1400px] mx-auto">
+      {/* Header row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Documents</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Manage and track all your HR documents</p>
+        </div>
+        <Button className="gap-2 self-start sm:self-auto">
+          <Upload size={15} /> Upload Document
+        </Button>
+      </div>
+
+      {/* Summary stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { label: "Total Documents", value: DOCUMENTS.length, icon: Layers,       color: "text-primary"        },
+          { label: "Verified",        value: verifiedCount,    icon: CheckCircle2,  color: "text-green-600"      },
+          { label: "Pending Review",  value: pendingCount,     icon: Clock,         color: "text-amber-600"      },
+          { label: "Rejected",        value: rejectedCount,    icon: AlertCircle,   color: "text-red-600"        },
+        ].map(({ label, value, icon: Icon, color }) => (
+          <Card key={label}>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="rounded-lg bg-muted p-2">
+                <Icon size={18} className={color} />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{value}</p>
+                <p className="text-xs text-muted-foreground">{label}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Category grid */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <FolderOpen size={16} /> Document Categories
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {CATEGORIES_GRID.map(({ label, lastUpdated }) => {
+              const meta  = CATEGORY_META[label];
+              const Icon  = meta.icon;
+              const count = DOCUMENTS.filter((d) => d.category === label).length;
+              return (
+                <button
+                  key={label}
+                  onClick={() => setActiveCategory(activeCategory === label ? "All" : label)}
+                  className={cn(
+                    "flex flex-col items-center gap-2 rounded-xl border p-4 text-center transition-all hover:shadow-sm",
+                    activeCategory === label ? "border-primary bg-primary/5" : "border-border"
+                  )}
+                >
+                  <div className={cn("rounded-lg p-2.5", meta.bg)}>
+                    <Icon size={20} className={meta.color} />
+                  </div>
+                  <span className="text-xs font-medium leading-tight">{label}</span>
+                  <span className="text-[11px] text-muted-foreground">{count} files</span>
+                  {activeCategory === label && (
+                    <span className="absolute top-2 right-2">
+                      <Check size={12} className="text-primary" />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Documents table */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <CardTitle className="text-base flex items-center gap-2 flex-1">
+              <HardDrive size={16} /> All Documents
+              {activeCategory !== "All" && (
+                <Badge variant="secondary" className="ml-1 text-xs">{activeCategory}</Badge>
+              )}
+            </CardTitle>
+            <div className="flex gap-2">
+              <div className="relative">
+                <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                <Input
+                  placeholder="Search documents…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="h-8 pl-8 text-xs w-48"
+                />
+              </div>
+              {activeCategory !== "All" && (
+                <Button variant="ghost" size="sm" className="h-8 gap-1 text-xs" onClick={() => setActiveCategory("All")}>
+                  <RefreshCw size={12} /> Clear
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="pl-4">Document</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Uploaded</TableHead>
+                <TableHead>Size</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right pr-4">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-10 text-muted-foreground text-sm">
+                    No documents found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filtered.map((doc) => {
+                  const status = STATUS_CONFIG[doc.status];
+                  const StatusIcon = status.icon;
+                  return (
+                    <TableRow key={doc.id} className="group">
+                      <TableCell className="pl-4">
+                        <div className="flex items-center gap-2.5">
+                          <FileIcon type={doc.fileType} />
+                          <span className="text-sm font-medium">{doc.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge className={cn("text-xs border-0", CAT_BADGE[doc.category])}>
+                          {doc.category}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{doc.uploadedDate}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{doc.size}</TableCell>
+                      <TableCell>
+                        <span className={cn("inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full", status.cls)}>
+                          <StatusIcon size={11} />
+                          {status.label}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right pr-4">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <MoreHorizontal size={15} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-40">
+                            <DropdownMenuItem className="gap-2 cursor-pointer text-xs">
+                              <Eye size={13} /> View
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="gap-2 cursor-pointer text-xs">
+                              <Download size={13} /> Download
+                            </DropdownMenuItem>
+                            <DropdownMenuItem className="gap-2 cursor-pointer text-xs">
+                              <Share2 size={13} /> Share
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="gap-2 cursor-pointer text-xs text-destructive focus:text-destructive">
+                              <Trash2 size={13} /> Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Required documents checklist */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Shield size={16} /> Required Documents Checklist
+            <Badge variant="secondary" className="ml-auto text-xs">
+              {REQUIRED_DOCS.filter((d) => d.done).length}/{REQUIRED_DOCS.length} Complete
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {REQUIRED_DOCS.map((doc) => (
+              <div
+                key={doc.name}
+                className={cn(
+                  "flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm",
+                  doc.done
+                    ? "border-green-200 bg-green-50 dark:border-green-900/40 dark:bg-green-900/10"
+                    : "border-amber-200 bg-amber-50 dark:border-amber-900/40 dark:bg-amber-900/10"
+                )}
+              >
+                {doc.done
+                  ? <CheckCircle2 size={15} className="text-green-600 shrink-0" />
+                  : <AlertCircle  size={15} className="text-amber-600 shrink-0" />
+                }
+                <span className={doc.done ? "text-green-800 dark:text-green-300" : "text-amber-800 dark:text-amber-300"}>
+                  {doc.name}
+                </span>
+                {!doc.done && (
+                  <Button variant="ghost" size="sm" className="ml-auto h-6 text-[11px] px-2 text-amber-700 hover:text-amber-900">
+                    Upload <ChevronRight size={11} />
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
