@@ -1,9 +1,13 @@
 'use client';
 
 import { createContext, PropsWithChildren, useCallback, useContext, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
-import { loginWithPassword, logout } from "../lib/auth/authService";
-import { setCredentials, clearCredentials, AuthUser } from "../store/authSlice";
+import { loginWithPassword, logout as authLogout } from "../lib/auth/authService";
+
+export type AuthUser = {
+	id: string;
+	email?: string;
+	name?: string;
+};
 
 export type SessionContextValue = {
 	isAuthenticated: boolean;
@@ -12,35 +16,38 @@ export type SessionContextValue = {
 	logout: () => Promise<void>;
 };
 
+// Pre-seed with the demo user so the app starts logged in.
+const DEMO_USER: AuthUser = {
+	id: "EMP-00142",
+	email: "mayank.shukla@propvivo.com",
+	name: "Mayank Shukla",
+};
+
 const SessionContext = createContext<SessionContextValue | undefined>(undefined);
 
 export function SessionProvider({ children }: PropsWithChildren) {
-	const dispatch = useDispatch();
-	const [user, setUser] = useState<AuthUser | null>(null);
+	const [user, setUser] = useState<AuthUser | null>(DEMO_USER);
 	const isAuthenticated = Boolean(user);
 
 	const login = useCallback(async ({ email, password }: { email: string; password: string }) => {
 		const res = await loginWithPassword(email, password);
-		const nextUser: AuthUser | null =
-			res.user ? { id: res.user.id, name: res.user.name, email: res.user.email } : null;
+		const nextUser: AuthUser | null = res.user
+			? { id: res.user.id, name: res.user.name, email: res.user.email }
+			: null;
 		setUser(nextUser);
-		dispatch(setCredentials({ user: nextUser }));
-	}, [dispatch]);
+	}, []);
 
 	const signOut = useCallback(async () => {
-		await logout();
+		await authLogout();
 		setUser(null);
-		dispatch(clearCredentials());
-	}, [dispatch]);
+	}, []);
 
-	const value = useMemo<SessionContextValue>(() => {
-		return {
-			isAuthenticated,
-			user,
-			login,
-			logout: signOut,
-		};
-	}, [isAuthenticated, login, signOut, user]);
+	const value = useMemo<SessionContextValue>(() => ({
+		isAuthenticated,
+		user,
+		login,
+		logout: signOut,
+	}), [isAuthenticated, login, signOut, user]);
 
 	return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
 }
@@ -50,5 +57,3 @@ export function useSession() {
 	if (!ctx) throw new Error("useSession must be used within SessionProvider");
 	return ctx;
 }
-
-
