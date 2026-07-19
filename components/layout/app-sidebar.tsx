@@ -72,7 +72,7 @@ export function AppSidebar() {
                   <Building2 size={16} />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">PropVivo</span>
+                  <span className="truncate font-semibold">MayankShukla</span>
                   <span className="truncate text-xs text-muted-foreground">HRMS Platform</span>
                 </div>
               </Link>
@@ -144,7 +144,7 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="sm" className="text-muted-foreground">
-              <span className="text-xs">© 2026 PropVivo</span>
+              <span className="text-xs">© 2026 MayankShukla</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
