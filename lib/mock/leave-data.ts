@@ -95,7 +95,7 @@ export const mockMyLeaveRequests: LeaveRequest[] = [
   {
     id: "LV-2026-001",
     employeeId: "EMP-00142",
-    employeeName: "Arjun Mehta",
+    employeeName: "Mayank Shukla",
     department: "Engineering",
     leaveType: "Casual Leave",
     startDate: "2026-06-19",
@@ -110,7 +110,7 @@ export const mockMyLeaveRequests: LeaveRequest[] = [
   {
     id: "LV-2026-002",
     employeeId: "EMP-00142",
-    employeeName: "Arjun Mehta",
+    employeeName: "Mayank Shukla",
     department: "Engineering",
     leaveType: "Sick Leave",
     startDate: "2026-05-12",
@@ -126,7 +126,7 @@ export const mockMyLeaveRequests: LeaveRequest[] = [
   {
     id: "LV-2026-003",
     employeeId: "EMP-00142",
-    employeeName: "Arjun Mehta",
+    employeeName: "Mayank Shukla",
     department: "Engineering",
     leaveType: "Comp Off",
     startDate: "2026-05-02",
@@ -141,7 +141,7 @@ export const mockMyLeaveRequests: LeaveRequest[] = [
   {
     id: "LV-2026-004",
     employeeId: "EMP-00142",
-    employeeName: "Arjun Mehta",
+    employeeName: "Mayank Shukla",
     department: "Engineering",
     leaveType: "Casual Leave",
     startDate: "2026-07-07",
@@ -155,7 +155,7 @@ export const mockMyLeaveRequests: LeaveRequest[] = [
   {
     id: "LV-2026-005",
     employeeId: "EMP-00142",
-    employeeName: "Arjun Mehta",
+    employeeName: "Mayank Shukla",
     department: "Engineering",
     leaveType: "Personal Leave",
     startDate: "2026-04-10",
@@ -169,7 +169,7 @@ export const mockMyLeaveRequests: LeaveRequest[] = [
   {
     id: "LV-2026-006",
     employeeId: "EMP-00142",
-    employeeName: "Arjun Mehta",
+    employeeName: "Mayank Shukla",
     department: "Engineering",
     leaveType: "Comp Off",
     startDate: "2026-03-21",

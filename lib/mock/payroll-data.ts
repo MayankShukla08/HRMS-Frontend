@@ -60,7 +60,7 @@ export interface SalaryTrendPoint {
 
 export const mockPayrollProfile: EmployeePayrollProfile = {
   id:              "EMP-00142",
-  name:            "Arjun Mehta",
+  name:            "Mayank Shukla",
   department:      "Engineering",
   designation:     "Senior Software Engineer",
   employeeId:      "EMP-00142",
